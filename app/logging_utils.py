@@ -1,52 +1,43 @@
-import logging
-import json
-import os
+# logging_utils.py
+import logging, json, os
 from datetime import datetime
 
-# Ensure logs folder exists
 os.makedirs("logs", exist_ok=True)
 
 def get_log_filename():
-    """Return daily log file name like logs/ai-2025-08-17.log"""
     today = datetime.now().strftime("%Y-%m-%d")
     return f"logs/ai-{today}.log"
 
-# Setup logger
 logger = logging.getLogger("ai_logger")
 logger.setLevel(logging.INFO)
-
-# File handler (new file each day)
 file_handler = logging.FileHandler(get_log_filename(), encoding="utf-8")
 file_handler.setFormatter(logging.Formatter("%(asctime)s [%(levelname)s] %(message)s"))
 logger.addHandler(file_handler)
-
-# Console handler (optional for dev)
-console_handler = logging.StreamHandler()
-console_handler.setFormatter(logging.Formatter("%(asctime)s [%(levelname)s] %(message)s"))
-logger.addHandler(console_handler)
-
+logger.addHandler(logging.StreamHandler())
 
 def log_full_event(session_id: str, question: str, result, vector_details: dict):
     """
-    Logs BOTH token usage + vector db info (with cost estimates)
-    in a single JSON log entry.
+    Logs token usage + separate vector retrieval cost (store & DDS) + total cost
     """
     usage = result.get("usage", {})
     input_tokens = usage.get("prompt_tokens", 0)
     output_tokens = usage.get("completion_tokens", 0)
     total_tokens = usage.get("total_tokens", 0)
 
-    # --- OpenAI token pricing (gpt-4o-mini) ---
-    price_in = 0.150 / 1_000_000   # $ per token
-    price_out = 0.600 / 1_000_000  # $ per token
+    # Token cost
+    price_in = 0.150 / 1_000_000
+    price_out = 0.600 / 1_000_000
     token_cost = round((input_tokens * price_in) + (output_tokens * price_out), 6)
 
-    # --- Vector DB cost (example: Pinecone) ---
-    chunks = vector_details.get("chunks_retrieved", 0)
-    vector_price_per_unit = 0.096 / 1_000_000   # $ per vector read
-    vector_cost = round(chunks * vector_price_per_unit, 6)
+    # Vector costs (example: store vs DDS)
+    store_chunks = vector_details.get("store_chunks", 0)
+    dds_chunks = vector_details.get("dds_chunks", 0)
+    vector_price_per_unit = 0.096 / 1_000_000
 
-    # --- Total combined ---
+    store_cost = round(store_chunks * vector_price_per_unit, 6)
+    dds_cost = round(dds_chunks * vector_price_per_unit, 6)
+    vector_cost = round(store_cost + dds_cost, 6)
+
     total_cost = round(token_cost + vector_cost, 6)
 
     log_data = {
@@ -60,10 +51,11 @@ def log_full_event(session_id: str, question: str, result, vector_details: dict)
             "approx_cost_usd": token_cost
         },
         "vector_retrieval": {
-            **vector_details,
+            "store_chunks": store_chunks,
+            "dds_chunks": dds_chunks,
             "approx_cost_usd": vector_cost
         },
         "total_estimated_cost_usd": total_cost
     }
 
-    # logger.info(json.dumps(log_data))
+    logger.info(json.dumps(log_data))

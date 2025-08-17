@@ -1,3 +1,7 @@
+# IDE/Editor files
+.vscode/
+.idea/
+
 # Python
 __pycache__/
 *.pyc
@@ -19,6 +23,9 @@ logs/
 
 # Virtual environment
 venv/
+venv311/
+venv312
+venv*
 Carmen July Numbers.csv
 Carmen July Numbers 2.csv
 data_to_excel.xlsx
@@ -29,3 +36,4 @@ faiss_index/
 1256_aug_deals.csv
 1256_sales_data.json
 1256_sales_data_extended.json
+
