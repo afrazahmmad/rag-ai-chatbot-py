@@ -1,78 +1,88 @@
-# run_cli.py
 import argparse
-from app.api_client import fetch_sales_data, fetch_dds_training
-from app.data_loader import sales_dict_to_docs, dds_defs_dict_to_docs
-from app.vectorstore import build_or_load_dds_index, build_or_update_store_index
-from app.retriever import build_ensemble_retriever
-from app.chatbot import build_chatbot
-from app.config import STORE_K, DDS_K, ENSEMBLE_WEIGHTS
-from app.logging_utils import log_full_event
-from app.llm_factory import get_llm  # <-- new factory
-
-def parse_args():
-    parser = argparse.ArgumentParser(description="DDS Hybrid RAG Chatbot (CLI)")
-    parser.add_argument("--dds-id", type=str, help="DDS identifier (e.g., dds_usa)")
-    parser.add_argument("--store-id", type=str, help="Store identifier (e.g., 1256)")
-    parser.add_argument("--llm-provider", type=str, default="huggingface",
-                        help="LLM provider: openai, anthropic, huggingface")
-    parser.add_argument("--llm-model", type=str, default="gpt2",
-                        help="LLM model name or path (for HuggingFace, e.g., gpt2)")
-    return parser.parse_args()
+from app.vectorstore import (
+    build_or_load_dds_index,
+    build_or_update_store_index,
+    load_dds_index,
+    load_store_index,
+)
+from app.llm_factory import get_llm
+import sys
 
 def main():
-    args = parse_args()
-    dds_id = args.dds_id or input("Enter DDS ID: ").strip()
-    store_id = args.store_id or input("Enter Store ID: ").strip()
+    parser = argparse.ArgumentParser(description="DDS RAG Chatbot CLI")
+    parser.add_argument("--dds-id", type=str, required=True, help="DDS ID")
+    parser.add_argument("--store-id", type=str, required=True, help="Store ID")
+    parser.add_argument("--llm-provider", type=str, required=True, help="LLM provider (huggingface/openai/anthropic)")
+    parser.add_argument("--llm-model", type=str, required=True, help="LLM model name")
+    parser.add_argument("--hf-embedding", action="store_true", help="Use HuggingFace embeddings for FAISS")
 
-    # 1) Fetch JSONs
-    sales_json = fetch_sales_data(store_id)
-    dds_defs = fetch_dds_training(dds_id)
+    args = parser.parse_args()
 
-    # 2) Convert JSON → LangChain Documents
-    sales_docs, aggregated_doc = sales_dict_to_docs(sales_json)
-    dds_docs = dds_defs_dict_to_docs(dds_defs)
+    dds_id = args.dds_id
+    store_id = args.store_id
+    llm_provider = args.llm_provider.lower()
+    llm_model_name = args.llm_model
+    hf_embedding = args.hf_embedding
 
-    # 3) Build/load indices
-    dds_vs = build_or_load_dds_index(dds_id, dds_docs)
-    store_vs = build_or_update_store_index(store_id, sales_docs + [aggregated_doc], sales_json)
+    # ===== Build/load DDS index =====
+    try:
+        dds_index = load_dds_index(dds_id)
+        if dds_index is None:
+            print(f"Building DDS index for {dds_id}...")
+            sample_docs = ["Sample DDS document content. Replace with your actual DDS data."]
+            dds_index = build_or_load_dds_index(dds_id, sample_docs, embedding_model_name=llm_model_name, hf_embedding=hf_embedding)
+    except Exception as e:
+        print("Error building DDS index:", e)
+        sys.exit(1)
 
-    # 4) Hybrid retriever
-    retriever = build_ensemble_retriever(
-        store_vs, dds_vs,
-        k_store=STORE_K, k_dds=DDS_K,
-        weights=ENSEMBLE_WEIGHTS
-    )
+    # ===== Build/load Store index =====
+    try:
+        store_index = load_store_index(store_id)
+        if store_index is None:
+            print(f"Building Store index for {store_id}...")
+            sample_docs = ["Sample Store document content. Replace with your actual Store data."]
+            store_index = build_or_update_store_index(store_id, sample_docs, embedding_model_name=llm_model_name, hf_embedding=hf_embedding)
+    except Exception as e:
+        print("Error building Store index:", e)
+        sys.exit(1)
 
-    # 5) Build chatbot with chosen LLM
-    llm = get_llm(args.llm_provider, args.llm_model)
-    bot = build_chatbot(retriever, llm=llm)
-    print("\n🚀 DDS Hybrid Chatbot Ready! Type 'exit' to quit.\n")
+    # ===== Initialize LLM via llm_factory =====
+    try:
+        llm = get_llm(provider=llm_provider, model_name=llm_model_name, hf_embedding=hf_embedding)
+    except Exception as e:
+        print("Error initializing LLM:", e)
+        sys.exit(1)
 
-    session_id = f"{dds_id}:{store_id}"
+    print("\n✅ DDS Chatbot CLI Ready. Type 'exit' to quit.")
 
     while True:
+        user_input = input("You: ").strip()
+        if user_input.lower() in ("exit", "quit"):
+            break
+
+        # Simple FAISS retrieval from DDS index
         try:
-            question = input("You: ").strip()
-        except (EOFError, KeyboardInterrupt):
-            print("\n👋 Goodbye!")
-            break
+            results = dds_index.similarity_search(user_input, k=3)
+            context = " ".join([doc.page_content for doc in results])
+        except Exception:
+            context = ""
 
-        if question.lower() in {"exit", "quit"}:
-            print("👋 Goodbye!")
-            break
+        # Prepare prompt
+        prompt = f"Context: {context}\nQuestion: {user_input}\nAnswer:"
 
-        # Run RAG chatbot
-        result = bot.invoke({"question": question}, config={"configurable": {"session_id": session_id}})
-        answer = (result.get("answer") or "").strip()
-        print("Bot:", answer)
+        # Query LLM
+        try:
+            if llm_provider.lower() == "huggingface" and hf_embedding:
+                # For HuggingFace embeddings only, just show similarity results
+                response = context or "No relevant documents found."
+            else:
+                # Generative LLMs
+                response = llm(prompt)
+        except Exception as e:
+            response = f"Error generating response: {e}"
 
-        # Vector info: retrieve number of chunks returned
-        vector_info = {
-            "chunks_retrieved": len(result.get("source_documents", []))
-        }
+        print("Bot:", response)
 
-        # Log single JSON entry with tokens + vector info + cost
-        log_full_event(session_id, question, result, vector_info)
 
 if __name__ == "__main__":
     main()
