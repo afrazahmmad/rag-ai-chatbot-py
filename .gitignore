@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+env/
+venv/
+*.sqlite3
+*.db
+
+# macOS
+.DS_Store
+*.swp
+
+# Logs
+logs/
+*.log
+
+# Virtual environment
+venv/
+Carmen July Numbers.csv
+Carmen July Numbers 2.csv
+data_to_excel.xlsx
+REY_new_2_ro_451351_20250807_101649.json
+VS_471249.csv
+vectorstore/
+faiss_index/
