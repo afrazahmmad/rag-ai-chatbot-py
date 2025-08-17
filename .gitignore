@@ -4,7 +4,6 @@ __pycache__/
 *.pyo
 *.pyd
 env/
-.env
 venv/
 *.sqlite3
 *.db
@@ -26,3 +25,8 @@ REY_new_2_ro_451351_20250807_101649.json
 VS_471249.csv
 vectorstore/
 faiss_index/
+1256_aug_deals.csv
+1256_sales_data.json
+1256_sales_data_extended.json
+config.bat
+node_modules
