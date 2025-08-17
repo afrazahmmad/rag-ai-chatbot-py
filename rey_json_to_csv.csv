@@ -1,0 +1,56 @@
+,Field
+0,"{'Name': 'RONumber', 'Value': '451351'}"
+1,"{'Name': 'ApptNumber', 'Value': '321871'}"
+2,"{'Name': 'Completed', 'Value': 'FINISHED'}"
+3,{'Name': 'Transportation'}
+4,"{'Name': 'OpenedDate', 'Value': '2025-07-01'}"
+5,"{'Name': 'PromiseDate', 'Value': '2025-07-01'}"
+6,"{'Name': 'PromiseTime', 'Value': '18:00'}"
+7,"{'Name': 'PostDate', 'Value': '2025-07-01'}"
+8,"{'Name': 'PostTime', 'Value': '05:17pm'}"
+9,"{'Name': 'ServiceAdvisorId', 'Value': '233'}"
+10,"{'Name': 'ServiceAdvisorName', 'Value': 'CARMEN PEREZ'}"
+11,"{'Name': 'OwnerName', 'Value': 'RICKEY HAMMAN'}"
+12,{'Name': 'CellPhone'}
+13,"{'Name': 'HomePhone', 'Value': '706-934-6381'}"
+14,{'Name': 'WorkPhone'}
+15,"{'Name': 'Email', 'Value': 'rdhamman56@gmail.com'}"
+16,"{'Name': 'Address1', 'Value': '907 SIEERA PLACE APT 53'}"
+17,{'Name': 'Address2'}
+18,"{'Name': 'City', 'Value': 'DALTON'}"
+19,"{'Name': 'State', 'Value': 'GA'}"
+20,"{'Name': 'Zip', 'Value': '307209112'}"
+21,"{'Name': 'Vin', 'Value': '4T1DAACK2SU562281'}"
+22,"{'Name': 'Year', 'Value': '2025'}"
+23,"{'Name': 'Make', 'Value': 'TOYOTA'}"
+24,"{'Name': 'Model', 'Value': 'CAMRY'}"
+25,"{'Name': 'TechIds', 'Value': '266~266|266~266'}"
+26,"{'Name': 'Tech', 'Value': 'VLADIMIR CHESHEV|VLADIMIR CHESHEV'}"
+27,"{'Name': 'Payer', 'Value': 'C|I'}"
+28,"{'Name': 'HoursCost', 'Value': '0.00|0.00'}"
+29,"{'Name': 'HoursSale', 'Value': '0.00'}"
+30,"{'Name': 'LaborCost', 'Value': '0.00|0.00'}"
+31,"{'Name': 'LaborSale', 'Value': '0.00|0.00'}"
+32,"{'Name': 'PartsCost', 'Value': '0.00|0.00'}"
+33,"{'Name': 'PartsSale', 'Value': '0.00|0.00'}"
+34,{'Name': 'MiscCost'}
+35,"{'Name': 'MiscSale', 'Value': '0.00'}"
+36,"{'Name': 'Lines_code', 'Value': '00TOZ00GOC|00TOZ00CEL'}"
+37,"{'Name': 'Lines_description', 'Value': 'COURTESY MULTIPOINT|CHECK ENGINE LIGHT'}"
+38,"{'Name': 'Lines_cause', 'Value': 'PERFORM MULTI POINT INSPECTION|DTC STORED FOR POSSIBLY BAD FUEL VAPOR CONTAINMENT VALVE.~DTC P24517F , P14502A'}"
+39,"{'Name': 'Lines_complaint', 'Value': 'PERFORM MULTI POINT INSPECTION|CUSTOMER STATES CHECK ENGINE LIGHT ON'}"
+40,"{'Name': 'Lines_correction', 'Value': 'PERFORM MULTI POINT INSPECTION'}"
+41,{'Name': 'Lines_addon'}
+42,"{'Name': 'LinesLabor_rate', 'Value': '37.00~37.00|37.00~37.00'}"
+43,"{'Name': 'LinesLabor_hours', 'Value': '0.0~0.0|0.0~0.0'}"
+44,"{'Name': 'LinesParts_cost', 'Value': '|346.13'}"
+45,"{'Name': 'LinesParts_description', 'Value': '|VALVE SUB-ASSY, C'}"
+46,"{'Name': 'LinesParts_cwi', 'Value': '|I'}"
+47,"{'Name': 'LinesParts_part', 'Value': '|TO90910-15089'}"
+48,"{'Name': 'LinesParts_quantity', 'Value': '|1'}"
+49,"{'Name': 'LinesParts_sale', 'Value': '|449.97'}"
+50,"{'Name': 'LinesMisc_code', 'Value': 'SSI~SS'}"
+51,{'Name': 'LinesMisc_cost'}
+52,"{'Name': 'LinesMisc_sale', 'Value': '0.00~0.00'}"
+53,{'Name': 'LineSublet_cost'}
+54,{'Name': 'LineSublet_sale'}

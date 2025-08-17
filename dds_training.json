@@ -1,0 +1,95 @@
+{
+  "terms": {
+    "DDS": {
+      "definition": "Digital Dealership System (DDS) is a dealership management platform designed for automotive businesses to manage sales deals, employees, stores, and customer data. It provides insights, reports, and analytics across multiple dealerships."
+    },
+    "Stores": {
+      "definition": "Each dealership or branch location. Reports and permissions are store-specific."
+    },
+    "Employees": {
+      "definition": "DDS tracks employees (salespersons, managers, finance, etc.). Only active employees (not disabled) are included in reports. Permissions determine what data each employee can see."
+    },
+    "Deals": {
+      "definition": "A record of a car sale created in the sales_deals table. Deals capture vehicle details, sales, gross, and salespersons. They can be filtered by date ranges like Today, MTD, YTD, Last Month, etc."
+    },
+    "Permissions": {
+      "definition": "System-specific access rights that decide what a user can see or do. A user linked to a store may only see deals relevant to that store."
+    },
+    "Settings": {
+      "definition": "Dealer-specific configurations applied to database queries along with time filters."
+    },
+    "Reports": {
+      "definition": "DDS provides reporting features such as sales performance by employee, store comparisons, gross reports, pacing reports, and trends."
+    },
+    "Salesperson": {
+      "definition": "An employee assigned to a sales deal. If a deal has salespersonId filled, that employee is considered a Salesperson."
+    },
+    "Pace": {
+      "definition": "A metric used to compare sales progress against previous trends or expected performance."
+    },
+    "Trends": {
+      "definition": "Comparison of sales numbers over different durations (e.g., MTD vs LMTD, YTD vs LYTD)."
+    },
+    "DDSQueryLogic": {
+      "definition": "Always apply dealership settings + permissions + active employees filter + correct time duration when fetching data."
+    },
+    "Units": {
+      "definition": "Units are all cars or a vehicle that are being sold in the system"
+    },
+    "New Units": {
+      "definition": "Units are all new cars or a vehicle that are being sold in the system"
+    },
+    "Used Units": {
+      "definition": "Units are all used cars or a vehicle that are being sold in the system"
+    },
+    "Trade Units": {
+      "definition": "Units are traded cars or a vehicle that are being sold in trade of other vehicle"
+    },
+
+    "Sales": {
+      "definition": "Total revenue generated from all deals before any deductions. (Previously called Gross Sales)",
+      "formula": "Sales = Total Revenue from all deals"
+    },
+    "Gross": {
+      "definition": "Earnings remaining after deducting costs (Previously called Net).",
+      "formula": "Gross = Sales - Costs"
+    },
+
+    "Today": {
+      "definition": "Only today's deals data.",
+      "formula": "Today = SUM(Deals where date = current date)"
+    },
+    "MTD": {
+      "definition": "Month-to-Date, from the 1st day of the current month until today.",
+      "formula": "MTD = SUM(Deals from 1st of current month to today)"
+    },
+    "YTD": {
+      "definition": "Year-to-Date, from January 1st of the current year until today.",
+      "formula": "YTD = SUM(Deals from Jan 1st of current year to today)"
+    },
+    "LM": {
+      "definition": "Last Month, data from the entire previous month.",
+      "formula": "LM = SUM(Deals from 1st to last day of previous month)"
+    },
+    "LMTD": {
+      "definition": "Last Month Till Date, from the 1st to the current/today date of the previous month.",
+      "formula": "LMTD = SUM(Deals from 1st of previous month to current/today date)"
+    },
+    "LYTD": {
+      "definition": "Last Year Till Date, from January 1st to the current/today date of the previous year.",
+      "formula": "LYTD = SUM(Deals from Jan 1st of previous year to current/today date)"
+    },
+    "CompareMTD": {
+      "definition": "Comparison of MTD with LastMonthTillDate.",
+      "formula": "CompareMTD = MTD vs LMTD"
+    },
+    "CompareYTD": {
+      "definition": "Comparison of YTD with LastYearTillDate.",
+      "formula": "CompareYTD = YTD vs LYTD"
+    },
+    "SameMonth": {
+      "definition": "MTD of the current year compared with the same month of the previous year.",
+      "formula": "SameMonth = MTD(current year) vs MTD(previous year)"
+    }
+  }
+}
