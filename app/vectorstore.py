@@ -1,118 +1,93 @@
 import os
+import json
 from pathlib import Path
-import pickle
+from typing import List, Optional
+
+from langchain.docstore.document import Document
 from langchain_community.vectorstores import FAISS
-from langchain.schema import Document
 
-# Directory to save vectorstores
-VECTORSTORE_DIR = Path("./vectorstores")
-VECTORSTORE_DIR.mkdir(exist_ok=True)
+BASE_INDEX_DIR = Path("faiss_indexes")
+BASE_INDEX_DIR.mkdir(exist_ok=True)
 
+# Optional: import HuggingFace embeddings if available
+try:
+    from langchain_huggingface import HuggingFaceEmbeddings
+except ImportError:
+    HuggingFaceEmbeddings = None
 
-def get_embedding_model(model_name, hf_embedding=False):
-    """
-    Return the embedding model instance based on hf_embedding flag.
-    """
+# ---------------------- JSON -> Documents ----------------------
+def load_dds_docs(dds_file: str) -> List[Document]:
+    with open(dds_file, "r", encoding="utf-8") as f:
+        data = json.load(f)
+    return [Document(page_content=f"{k}: {v}", metadata={"type": "dds"}) for k, v in data.items()]
+
+def load_store_docs(store_file: str) -> List[Document]:
+    with open(store_file, "r", encoding="utf-8") as f:
+        data = json.load(f)
+    docs = []
+    for category, metrics in data.items():
+        for metric_type, metric_data in metrics.items():
+            for name, value in metric_data.items():
+                docs.append(
+                    Document(
+                        page_content=f"{category} | {metric_type} | {name}: {value}",
+                        metadata={"type": "store", "category": category, "metric": metric_type, "name": name}
+                    )
+                )
+    return docs
+
+# ---------------------- Vectorstore ----------------------
+def build_vectorstore(docs: List[Document], index_name: str, hf_embedding=False, hf_model_name=None):
+    index_path = BASE_INDEX_DIR / f"{index_name}.faiss"
+
     if hf_embedding:
-        from langchain_community.embeddings import HuggingFaceEmbeddings
-        return HuggingFaceEmbeddings(model_name=model_name)
+        if HuggingFaceEmbeddings is None:
+            raise ImportError("langchain-huggingface not installed. Run: pip install langchain-huggingface")
+        embedding_model = HuggingFaceEmbeddings(model_name=hf_model_name)
     else:
-        from langchain_community.embeddings import OpenAIEmbeddings
-        return OpenAIEmbeddings(model=model_name)
+        from langchain_openai import OpenAIEmbeddings
+        embedding_model = OpenAIEmbeddings(
+            model="text-embedding-3-small",
+            openai_api_key=os.getenv("OPENAI_API_KEY")
+        )
 
-
-def build_or_load_dds_index(dds_id, docs, embedding_model_name="text-embedding-3-small", hf_embedding=False):
-    """
-    Build or load FAISS index for DDS documents.
-
-    Args:
-        dds_id: str
-        docs: list[str]
-        embedding_model_name: str
-        hf_embedding: bool, if True use HuggingFace embeddings
-
-    Returns:
-        FAISS vectorstore instance
-    """
-    if not docs:
-        raise ValueError(f"No documents provided for DDS ID {dds_id}")
-
-    doc_objs = [Document(page_content=text) for text in docs]
-    embedding_model = get_embedding_model(embedding_model_name, hf_embedding)
-
-    try:
-        vs = FAISS.from_documents(doc_objs, embedding=embedding_model)
-    except IndexError as e:
-        raise RuntimeError(
-            "Failed to create FAISS index. Check if embedding model supports the documents."
-        ) from e
-
-    vs_path = VECTORSTORE_DIR / f"dds_{dds_id}.pkl"
-    with open(vs_path, "wb") as f:
-        pickle.dump(vs, f)
-
+    vs = FAISS.from_documents(docs, embedding_model)
+    vs.save_local(str(index_path))
     return vs
 
+def load_vectorstore(index_name: str, hf_embedding=False, hf_model_name=None) -> Optional[FAISS]:
+    index_path = BASE_INDEX_DIR / f"{index_name}.faiss"
+    if not index_path.exists():
+        return None
 
-def build_or_update_store_index(store_id, new_docs, embedding_model_name="text-embedding-3-small", hf_embedding=False):
-    """
-    Build or update FAISS index for a store.
+    if hf_embedding:
+        if HuggingFaceEmbeddings is None:
+            raise ImportError("langchain-huggingface not installed. Run: pip install langchain-huggingface")
+        embeddings = HuggingFaceEmbeddings(model_name=hf_model_name)
+    else:
+        from langchain_openai import OpenAIEmbeddings
+        embeddings = OpenAIEmbeddings(
+            model="text-embedding-3-small",
+            openai_api_key=os.getenv("OPENAI_API_KEY")
+        )
+    return FAISS.load_local(str(index_path), embeddings, allow_dangerous_deserialization=True)
 
-    Args:
-        store_id: str
-        new_docs: list[str]
-        embedding_model_name: str
-        hf_embedding: bool, if True use HuggingFace embeddings
-
-    Returns:
-        Updated FAISS vectorstore instance
-    """
-    if not new_docs:
-        raise ValueError(f"No documents provided to update Store ID {store_id}")
-
-    doc_objs = [Document(page_content=text) for text in new_docs]
-    embedding_model = get_embedding_model(embedding_model_name, hf_embedding)
-
-    vs_path = VECTORSTORE_DIR / f"store_{store_id}.pkl"
-    vs = None
-    if vs_path.exists():
-        with open(vs_path, "rb") as f:
-            vs = pickle.load(f)
-
+# ---------------------- DDS / Store helpers ----------------------
+def build_or_load_dds_index(dds_id, docs, hf_embedding=False, hf_model_name=None):
+    vs = load_vectorstore(f"dds_{dds_id}", hf_embedding=hf_embedding, hf_model_name=hf_model_name)
     if vs:
-        try:
-            vs.add_documents(doc_objs, embedding=embedding_model)
-        except Exception as e:
-            raise RuntimeError("Failed to update FAISS index.") from e
-    else:
-        try:
-            vs = FAISS.from_documents(doc_objs, embedding=embedding_model)
-        except Exception as e:
-            raise RuntimeError("Failed to build FAISS index.") from e
+        return vs
+    return build_vectorstore(docs, f"dds_{dds_id}", hf_embedding=hf_embedding, hf_model_name=hf_model_name)
 
-    with open(vs_path, "wb") as f:
-        pickle.dump(vs, f)
+def build_or_update_store_index(store_id, store_file, hf_embedding=False, hf_model_name=None):
+    vs = load_vectorstore(f"store_{store_id}", hf_embedding=hf_embedding, hf_model_name=hf_model_name)
+    if vs:
+        return vs
+    docs = load_store_docs(store_file)
+    return build_vectorstore(docs, f"store_{store_id}", hf_embedding=hf_embedding, hf_model_name=hf_model_name)
 
-    return vs
+def load_dds_index(dds_id, hf_embedding=False, hf_model_name=None) -> Optional[FAISS]:
+    return load_vectorstore(f"dds_{dds_id}", hf_embedding=hf_embedding, hf_model_name=hf_model_name)
 
-
-def load_dds_index(dds_id):
-    """
-    Load existing DDS FAISS vectorstore if it exists.
-    """
-    vs_path = VECTORSTORE_DIR / f"dds_{dds_id}.pkl"
-    if not vs_path.exists():
-        return None
-    with open(vs_path, "rb") as f:
-        return pickle.load(f)
-
-
-def load_store_index(store_id):
-    """
-    Load existing Store FAISS vectorstore if it exists.
-    """
-    vs_path = VECTORSTORE_DIR / f"store_{store_id}.pkl"
-    if not vs_path.exists():
-        return None
-    with open(vs_path, "rb") as f:
-        return pickle.load(f)
+def load_store_index(store_id, hf_embedding=False, hf_model_name=None) -> Optional[FAISS]:
+    return load_vectorstore(f"store_{store_id}", hf_embedding=hf_embedding, hf_model_name=hf_model_name)
