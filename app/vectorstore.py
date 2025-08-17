@@ -6,7 +6,7 @@ from typing import List, Optional
 from langchain.docstore.document import Document
 from langchain_community.vectorstores import FAISS
 
-BASE_INDEX_DIR = Path("faiss_indexes")
+BASE_INDEX_DIR = Path("faiss_indices")
 BASE_INDEX_DIR.mkdir(exist_ok=True)
 
 # Optional: import HuggingFace embeddings if available
