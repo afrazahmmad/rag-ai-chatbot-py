@@ -12,7 +12,7 @@ from datetime import datetime
 # df = pd.read_csv("Carmen July Numbers.csv")
 # df.to_csv("Carmen July Numbers 2.csv",index=False)
 
-df = pd.read_csv("1256_aug_deals.csv",parse_dates=['sales_date'])
+df = pd.read_csv("1256_aug_deals.csv", parse_dates=['sales_date'])
 # Current Date
 today = datetime.now()
 

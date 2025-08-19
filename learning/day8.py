@@ -94,7 +94,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 
-df = pd.read_csv("multiple_stores_data.csv")
+df = pd.read_csv("../debugging/multiple_stores_data.csv")
 store_id = 1256
 
 

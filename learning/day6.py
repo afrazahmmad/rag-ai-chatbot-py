@@ -1,6 +1,6 @@
 import pandas as pd
 
-df_csv = pd.read_csv('Carmen July Numbers.csv')
+df_csv = pd.read_csv('../debugging/Carmen July Numbers.csv')
 print(df_csv.head(2))
 print("Tail")
 print(df_csv.tail(2))
@@ -17,7 +17,7 @@ df_internal_ps_30.to_csv('df_internal_ps_30.csv',index=False)
 
 import json
 
-with open('REY_new_2_ro_451351_20250807_101649.json','r') as file:
+with open('../debugging/REY_new_2_ro_451351_20250807_101649.json', 'r') as file:
     data = json.load(file)
 
 

@@ -26,16 +26,17 @@ venv/
 venv311/
 venv312
 venv*
-Carmen July Numbers.csv
-Carmen July Numbers 2.csv
-data_to_excel.xlsx
-REY_new_2_ro_451351_20250807_101649.json
-VS_471249.csv
+debugging/Carmen July Numbers.csv
+debugging/Carmen July Numbers 2.csv
+learning/data_to_excel.xlsx
+debugging/REY_new_2_ro_451351_20250807_101649.json
+debugging/VS_471249.csv
 vectorstore/
 faiss_index/
 faiss_indices/
 faiss_indexes/
-1256_aug_deals.csv
-1256_sales_data.json
-1256_sales_data_extended.json
+learning/1256_aug_deals.csv
+learning/1256_sales_data.json
+learning/1256_sales_data_extended.json
+debugging/
 

@@ -54,7 +54,7 @@ except FileNotFoundError:
 
 
 try:
-    with open("Carmen July Numbers.csv") as carmen_data_file:
+    with open("../debugging/Carmen July Numbers.csv") as carmen_data_file:
         carmen_data = carmen_data_file.read()
         print("total records", len(carmen_data))
 except FileNotFoundError:
