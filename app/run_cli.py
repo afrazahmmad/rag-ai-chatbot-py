@@ -83,7 +83,11 @@ def main():
                 # Only show retrieved context for embedding-only models
                 response = context or "No relevant documents found."
             else:
-                response = llm(prompt)
+                result = llm.invoke(prompt)  # safer new API
+                if hasattr(result, "content"):  # AIMessage object
+                    response = result.content
+                else:  # sometimes plain str
+                    response = str(result)
         except Exception as e:
             response = f"Error generating response: {e}"
 

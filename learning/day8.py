@@ -1,28 +1,28 @@
-# import pandas as pd
-# import numpy as np
-# from sklearn.linear_model import LinearRegression
-#
-#
-# data = {
-#     "Days": [1,2,3,4,5,6,7,8,9,10],
-#     "Sales":[12,35,66,77,34,12,78,40,80,100],
-# }
-#
-# df = pd.DataFrame(data)
-#
-# input = df[['Days']]
-# output = df['Sales']
-#
+import pandas as pd
+import numpy as np
+from sklearn.linear_model import LinearRegression
+
+
+data = {
+    "Days": [1,2,3,4,5,6,7],
+    "Sales":[2,4,6,8,10,12,14],
+}
+
+df = pd.DataFrame(data)
+
+input = df[['Days']]
+output = df['Sales']
+
 # print(input,output)
-# model = LinearRegression()
-# model.fit(input,output)
-#
-# future_days = np.array([[11],[12],[13],[14],[15]])
-# # future_days = np.arange(1,30).reshape(-1,1)
-# predictions = model.predict(future_days)
-#
-# for day,pred in zip(future_days.flatten(),predictions):
-#     print(f"Predicted Sales for Day {day}: {pred:.2f}")
+model = LinearRegression()
+model.fit(input,output)
+
+# future_days = np.array([[20],[21],[22],[23],[24],[25],[26]])
+future_days = np.arange(8,15).reshape(-1,1)
+predictions = model.predict(future_days)
+
+for day,pred in zip(future_days.flatten(),predictions):
+    print(f"Predicted Sales for Day {day}: {pred:.2f}")
 #
 # print("-------")
 # for i in range(len(future_days)):
@@ -90,64 +90,64 @@
 #
 #
 
-
-import pandas as pd
-import matplotlib.pyplot as plt
-
-df = pd.read_csv("../debugging/multiple_stores_data.csv")
-store_id = 1256
-
-
-def get_metrics(data):
-    total_deals = len(data)
-    new_units = len(data[data['new_used_cpo'].str.lower() == 'n'])
-    used_units = len(data[data['new_used_cpo'].str.lower() == 'u'])
-    front_gross = data['front_end_gross'].sum()
-    back_gross = data['back_end_gross'].sum()
-    total_gross = data['total_gross'].sum()
-    trade_count = data['trade_1_vin'].notna().sum()
-
-    return {
-        "Total Deals": total_deals,
-        "New Units": new_units,
-        "Used Units": used_units,
-        "Front End Gross": front_gross,
-        "Back End Gross": back_gross,
-        "Total Gross": total_gross,
-        "Trade Units": trade_count
-    }
-
-
-# Get metrics for each store
-store_grouped = df.groupby("store_id").apply(get_metrics).apply(pd.Series)
-store_grouped_2 = df.groupby("store_id").apply(get_metrics).apply(pd.Series)
-print(store_grouped_2)
-
-# Selected store metrics
-store_metrics = store_grouped.loc[store_id]
-store_metrics_2 = store_grouped_2.loc[store_id]
-print(store_metrics_2)
-
-# Market average (excluding this store)
-market_avg_metrics = store_grouped.drop(store_id).mean()
-market_avg_metrics_2 = store_grouped_2.drop(store_id).mean()
-
-
-# Comparison DataFrame
-comparison_df = pd.DataFrame({
-    "Metric": store_metrics.index,
-    f"Store {store_id}": store_metrics.values,
-    "Market Avg per Store": market_avg_metrics.values
-})
-comparison_df["Difference"] = comparison_df[f"Store {store_id}"] - comparison_df["Market Avg per Store"]
-
-print(comparison_df)
-
-# Visualization
-comparison_df.plot(x="Metric", y=[f"Store {store_id}", "Market Avg per Store"], kind="bar")
-plt.title(f"Store {store_id} vs Market Average per Store")
-plt.ylabel("Value")
-plt.xticks(rotation=45)
-plt.tight_layout()
-plt.show()
+#
+# import pandas as pd
+# import matplotlib.pyplot as plt
+#
+# df = pd.read_csv("../debugging/multiple_stores_data.csv")
+# store_id = 1256
+#
+#
+# def get_metrics(data):
+#     total_deals = len(data)
+#     new_units = len(data[data['new_used_cpo'].str.lower() == 'n'])
+#     used_units = len(data[data['new_used_cpo'].str.lower() == 'u'])
+#     front_gross = data['front_end_gross'].sum()
+#     back_gross = data['back_end_gross'].sum()
+#     total_gross = data['total_gross'].sum()
+#     trade_count = data['trade_1_vin'].notna().sum()
+#
+#     return {
+#         "Total Deals": total_deals,
+#         "New Units": new_units,
+#         "Used Units": used_units,
+#         "Front End Gross": front_gross,
+#         "Back End Gross": back_gross,
+#         "Total Gross": total_gross,
+#         "Trade Units": trade_count
+#     }
+#
+#
+# # Get metrics for each store
+# store_grouped = df.groupby("store_id").apply(get_metrics).apply(pd.Series)
+# store_grouped_2 = df.groupby("store_id").apply(get_metrics).apply(pd.Series)
+# print(store_grouped_2)
+#
+# # Selected store metrics
+# store_metrics = store_grouped.loc[store_id]
+# store_metrics_2 = store_grouped_2.loc[store_id]
+# print(store_metrics_2)
+#
+# # Market average (excluding this store)
+# market_avg_metrics = store_grouped.drop(store_id).mean()
+# market_avg_metrics_2 = store_grouped_2.drop(store_id).mean()
+#
+#
+# # Comparison DataFrame
+# comparison_df = pd.DataFrame({
+#     "Metric": store_metrics.index,
+#     f"Store {store_id}": store_metrics.values,
+#     "Market Avg per Store": market_avg_metrics.values
+# })
+# comparison_df["Difference"] = comparison_df[f"Store {store_id}"] - comparison_df["Market Avg per Store"]
+#
+# print(comparison_df)
+#
+# # Visualization
+# comparison_df.plot(x="Metric", y=[f"Store {store_id}", "Market Avg per Store"], kind="bar")
+# plt.title(f"Store {store_id} vs Market Average per Store")
+# plt.ylabel("Value")
+# plt.xticks(rotation=45)
+# plt.tight_layout()
+# plt.show()
 

@@ -112,8 +112,8 @@ def build_chatbot(vectorstore, k=25):
 
 # ---------- MAIN ----------
 if __name__ == "__main__":
-    sales_docs, aggregated_doc = sales_json_to_docs("1256_sales_data_extended.json")
-    dds_docs = dds_defs_to_docs("dds_training.json")
+    sales_docs, aggregated_doc = sales_json_to_docs("learning/1256_sales_data_extended.json")
+    dds_docs = dds_defs_to_docs("learning/dds_training.json")
 
     all_docs = sales_docs + [aggregated_doc] + dds_docs
     vectorstore = create_vectorstore(all_docs)

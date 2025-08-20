@@ -20,6 +20,10 @@ def get_llm(provider: str = "openai", model_name: str = "gpt-3.5-turbo", hf_embe
 
     # ---------------- OpenAI ----------------
     if provider == "openai":
+        from dotenv import load_dotenv
+        import os
+
+        load_dotenv()
         api_key = os.getenv("OPENAI_API_KEY")
         if not api_key:
             raise ValueError("OPENAI_API_KEY not set!")

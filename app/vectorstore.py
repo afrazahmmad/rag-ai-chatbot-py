@@ -65,6 +65,8 @@ def load_vectorstore(index_name: str, hf_embedding=False, hf_model_name=None) ->
             raise ImportError("langchain-huggingface not installed. Run: pip install langchain-huggingface")
         embeddings = HuggingFaceEmbeddings(model_name=hf_model_name)
     else:
+        from dotenv import load_dotenv
+        load_dotenv()
         from langchain_openai import OpenAIEmbeddings
         embeddings = OpenAIEmbeddings(
             model="text-embedding-3-small",

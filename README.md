@@ -90,3 +90,17 @@ flowchart TD
     I --> J[logs/ai-YYYY-MM-DD.log]
     H --> B
 ```
+
+### Command to run:
+
+```
+python -m app.run_cli \
+  --dds-id DDS \
+  --store-id 1256 \
+  --llm-provider huggingface \
+  --llm-model all-MiniLM-L6-v2 \
+  --hf-embedding \
+  --dds-file dds_training.json \
+  --store-file 1256_sales_data_extended.json
+
+```
