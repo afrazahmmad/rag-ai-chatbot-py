@@ -21,46 +21,65 @@ if not api_key:
 def sales_json_to_docs(filepath):
     """
     Reads extended DDS sales JSON and creates:
-    - Individual salesperson documents with full details
-    - Aggregated summary doc for all people
+    - Individual documents for each entity (salesperson, manager, brand, etc.)
+    - Aggregated summary doc for each role
     """
 
     with open(filepath, "r", encoding="utf-8") as f:
         data = json.load(f)
 
-    sales_docs = []
-    aggregated_summary_lines = []
+    all_docs = []
+    aggregated_docs = []
 
-    # data structure is like: data["SALESPERSON"]["units"]["MTD"]["John"] = 5
-    # iterate over each category (units, gross, etc.)
-    for category, metrics in data["SALESPERSON"].items():
-        for metric, people in metrics.items():
-            if isinstance(people, dict):
-                for person, value in people.items():
-                    # Build or update person profile
-                    key = f"{person}"
-                    doc = next((d for d in sales_docs if d.metadata["name"] == person), None)
+    # Iterate over all roles
+    for role, categories in data.items():
+        role_docs = []
+        aggregated_summary_lines = []
+
+        # categories: units, gross, trend, etc.
+        # categories: units, gross, trend, etc.
+        for category, metrics in categories.items():
+            if not isinstance(metrics, dict):
+                continue  # skip lists, numbers, or empty values
+
+            for metric, entities in metrics.items():
+                if not isinstance(entities, dict):
+                    continue  # skip if it's not a dict
+
+                for name, value in entities.items():
+                    # Find existing doc for this entity
+                    doc = next(
+                        (d for d in role_docs if d.metadata["name"] == name and d.metadata["role"] == role),
+                        None
+                    )
                     if doc:
                         doc.page_content += f"\n- {category} {metric}: {value}"
                     else:
-                        summary = f"{person} is a salesperson in DDS system. Sales performance:\n"
+                        summary = f"{name} is part of {role} in DDS system. Performance:\n"
                         summary += f"- {category} {metric}: {value}"
-                        sales_docs.append(Document(page_content=summary, metadata={"type": "sales", "name": person}))
-            else:
-                # If metric value is int, skip or handle differently
-                continue
+                        role_docs.append(Document(
+                            page_content=summary,
+                            metadata={"type": "sales", "role": role, "name": name}
+                        ))
 
-    # aggregated summary
-    for doc in sales_docs:
-        name = doc.metadata["name"]
-        aggregated_summary_lines.append(f"{name}: {doc.page_content.replace(name + ' is a salesperson in DDS system. Sales performance:', '').strip()}")
+        # aggregated summary for this role
+        for doc in role_docs:
+            name = doc.metadata["name"]
+            aggregated_summary_lines.append(
+                f"{name}: {doc.page_content.replace(f'{name} is part of {role} in DDS system. Performance:', '').strip()}"
+            )
 
-    aggregated_doc = Document(
-        page_content="All salespersons summary:\n" + "\n".join(aggregated_summary_lines),
-        metadata={"type": "all_sales"}
-    )
+        if aggregated_summary_lines:
+            aggregated_doc = Document(
+                page_content=f"All {role} summary:\n" + "\n".join(aggregated_summary_lines),
+                metadata={"type": "all_sales", "role": role}
+            )
+            aggregated_docs.append(aggregated_doc)
 
-    return sales_docs, aggregated_doc
+        all_docs.extend(role_docs)
+
+    return all_docs, aggregated_docs
+
 
 
 # ---------- STEP 2: DDS defs ----------
@@ -112,10 +131,10 @@ def build_chatbot(vectorstore, k=25):
 
 # ---------- MAIN ----------
 if __name__ == "__main__":
-    sales_docs, aggregated_doc = sales_json_to_docs("learning/1256_sales_data_extended.json")
+    sales_docs, aggregated_doc = sales_json_to_docs("learning/store_deals_data.json")
     dds_docs = dds_defs_to_docs("learning/dds_training.json")
 
-    all_docs = sales_docs + [aggregated_doc] + dds_docs
+    all_docs = sales_docs + aggregated_doc + dds_docs
     vectorstore = create_vectorstore(all_docs)
 
     chatbot = build_chatbot(vectorstore, k=30)

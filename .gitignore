@@ -1,5 +1,4 @@
 # IDE/Editor files
-.vscode/
 .idea/
 
 # Python
@@ -8,7 +7,6 @@ __pycache__/
 *.pyo
 *.pyd
 env/
-.env
 venv/
 *.sqlite3
 *.db
@@ -40,3 +38,5 @@ learning/1256_sales_data.json
 learning/1256_sales_data_extended.json
 debugging/
 
+config.bat
+node_modules
