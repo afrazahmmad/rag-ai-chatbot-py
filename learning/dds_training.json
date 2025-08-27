@@ -22,7 +22,19 @@
       "definition": "DDS provides reporting features such as sales performance by employee, store comparisons, gross reports, pacing reports, and trends."
     },
     "Salesperson": {
-      "definition": "An employee assigned to a sales deal. If a deal has salespersonId filled, that employee is considered a Salesperson."
+      "definition": "An employee assigned to a sales deal. If a deal has salespersonId filled, that employee is considered a Salesperson.A salesperson is responsible for selling cars to customers. Their performance is measured by units sold (new, used), gross profit (frontend, backend), and trends (MTD, YTD, etc.)."
+    },
+    "SalesManager": {
+      "definition": "An employee assigned to a sales deal. If a deal has salesmanagerId filled, that employee is considered a Sales manager.A sales manager oversees the sales team and dealership performance. Their metrics include total units managed, gross profit contribution, and team trends. They may also handle wholesale and oversee salesperson performance."
+    },
+    "FinanceManager": {
+      "definition": "An employee assigned to a sales deal. If a deal has finance manager Id filled, that employee is considered a Finance manager.A finance manager arranges financing and insurance products for customers. Their performance is measured by units financed, gross profit from backend finance products, and contribution to overall dealership profitability."
+    },
+    "Brand": {
+      "definition": "Brand performance data represents sales performance segmented by manufacturer or car brand (Toyota, Honda, etc.). It shows how different brands are performing within the dealership."
+    },
+    "CSI": {
+      "definition": "Customer Satisfaction Index (CSI) is a score that measures customer satisfaction, often collected through surveys. Higher CSI indicates better service quality."
     },
     "Pace": {
       "definition": "A metric used to compare sales progress against previous trends or expected performance."
